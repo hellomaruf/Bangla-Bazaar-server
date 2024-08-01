@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const cors = require("cors");
 const app = express();
@@ -26,8 +26,19 @@ async function run() {
       .db("BanglaBazarDB")
       .collection("products");
 
-    app.get("/prodects", async (req, res) => {
-      const result = await productsCollections.find().toArray();
+    // find product by category name********
+    app.get("/prodects/:name", async (req, res) => {
+      const name = req.params.name;
+      const query = { categoryName: name };
+      const result = await productsCollections.find(query).toArray();
+      res.send(result);
+    });
+
+    // find a single product by product name**********
+    app.get("/productDetails/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await productsCollections.findOne(query);
       res.send(result);
     });
 
