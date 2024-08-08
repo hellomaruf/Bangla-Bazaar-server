@@ -34,12 +34,29 @@ async function run() {
       res.send(result);
     });
 
+    // Get all products
+    app.get('/allProducts', async (req, res) => {
+      const result = await productsCollections.find().toArray()
+      res.send(result)
+    })
+
     // find a single product by product name**********
     app.get("/productDetails/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await productsCollections.findOne(query);
       res.send(result);
+    });
+
+    // Search route that filters products by name
+    app.get("/search/:itemName", async (req, res) => {
+      const name = req.params.itemName;
+      console.log(name);
+
+      const query = { productName: name };
+      const result = await productsCollections.find(query).toArray();
+      res.send(result);
+      console.log(result);
     });
 
     await client.db("admin").command({ ping: 1 });
