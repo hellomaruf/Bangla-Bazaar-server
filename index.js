@@ -7,7 +7,12 @@ const port = process.env.PORT || 3000;
 
 //middleware
 app.use(express.json());
-app.use(cors());
+const corsOptions = {
+  origin: ["http://localhost:5173", "http://localhost:5174"],
+  // credentials: true,
+  optionSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 
 const uri = `mongodb+srv://${process.env.USER}:${process.env.PASS}@cluster0.0o9qayn.mongodb.net/?appName=Cluster0`;
 
@@ -25,6 +30,7 @@ async function run() {
     const productsCollections = client
       .db("BanglaBazarDB")
       .collection("products");
+    const cartCollections = client.db("BanglaBazarDB").collection("cart");
 
     // find product by category name********
     app.get("/prodects/:name", async (req, res) => {
@@ -35,10 +41,10 @@ async function run() {
     });
 
     // Get all products
-    app.get('/allProducts', async (req, res) => {
-      const result = await productsCollections.find().toArray()
-      res.send(result)
-    })
+    app.get("/allProducts", async (req, res) => {
+      const result = await productsCollections.find().toArray();
+      res.send(result);
+    });
 
     // find a single product by product name**********
     app.get("/productDetails/:id", async (req, res) => {
@@ -52,11 +58,17 @@ async function run() {
     app.get("/search/:itemName", async (req, res) => {
       const name = req.params.itemName;
       console.log(name);
-
       const query = { productName: name };
       const result = await productsCollections.find(query).toArray();
       res.send(result);
       console.log(result);
+    });
+
+    // Add products in cart
+    app.post("/cartData", async (req, res) => {
+      const cartInfo = req.body;
+      const result = await cartCollections.insertOne(cartInfo);
+      res.send(result);
     });
 
     await client.db("admin").command({ ping: 1 });
