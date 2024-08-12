@@ -80,6 +80,20 @@ async function run() {
       res.send(result);
     });
 
+    // increment order
+    app.put("/incrementOrder/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $inc: {
+          orderCount: 1,
+        },
+      };
+      const result = await cartCollections.findOneAndUpdate(query, updateDoc);
+      res.send(result);
+      console.log(id);
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
