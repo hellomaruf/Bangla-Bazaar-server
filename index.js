@@ -13,8 +13,10 @@ const corsOptions = {
   optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
+console.log(process.env.PASS);
 
-const uri = `mongodb+srv://${process.env.USER}:${process.env.PASS}@cluster0.0o9qayn.mongodb.net/?appName=Cluster0`;
+// const uri = `mongodb+srv://${process.env.USER}:${process.env.PASS}@cluster0.0o9qayn.mongodb.net/?appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.USER}:${process.env.PASS}@cluster0.0o9qayn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -26,13 +28,13 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Collections*************
+    // Collections------------------------------------------->
     const productsCollections = client
       .db("BanglaBazarDB")
       .collection("products");
     const cartCollections = client.db("BanglaBazarDB").collection("cart");
 
-    // find product by category name********
+    // find product by category name----------------------------------->
     app.get("/prodects/:name", async (req, res) => {
       const name = req.params.name;
       const query = { categoryName: name };
@@ -40,13 +42,13 @@ async function run() {
       res.send(result);
     });
 
-    // Get all products
+    // Get all products------------------------------------------>
     app.get("/allProducts", async (req, res) => {
       const result = await productsCollections.find().toArray();
       res.send(result);
     });
 
-    // find a single product by product name**********
+    // find a single product by product name------------------------------------->
     app.get("/productDetails/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -54,7 +56,7 @@ async function run() {
       res.send(result);
     });
 
-    // Search route that filters products by name
+    // Search route that filters products by name---------------------------------------->
     app.get("/search/:itemName", async (req, res) => {
       const name = req.params.itemName;
       console.log(name);
@@ -64,23 +66,22 @@ async function run() {
       console.log(result);
     });
 
-    // Add products in cart
+    // Add products in cart-------------------------------------->
     app.post("/cartData", async (req, res) => {
       const cartInfo = req.body;
       const result = await cartCollections.insertOne(cartInfo);
       res.send(result);
     });
 
-    // Get cart product by email
+    // Get cart product by email-------------------------------->
     app.get("/cartProduct/:email", async (req, res) => {
       const email = req.params.email;
-      console.log(email);
       const query = { userEmail: email };
       const result = await cartCollections.find(query).toArray();
       res.send(result);
     });
 
-    // increment order
+    // increment order------------------------------>
     app.put("/incrementOrder/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -92,6 +93,19 @@ async function run() {
       const result = await cartCollections.findOneAndUpdate(query, updateDoc);
       res.send(result);
       console.log(id);
+    });
+
+    // Decrement Order------------------------->
+    app.put("/decrementOrder/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $inc: {
+          orderCount: -1,
+        },
+      };
+      const result = await cartCollections.findOneAndUpdate(query, updateDoc)
+      res.send(result)
     });
 
     await client.db("admin").command({ ping: 1 });
