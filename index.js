@@ -85,27 +85,32 @@ async function run() {
     app.put("/incrementOrder/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const updateDoc = {
-        $inc: {
-          orderCount: 1,
-        },
-      };
-      const result = await cartCollections.findOneAndUpdate(query, updateDoc);
-      res.send(result);
-      console.log(id);
+      const item = await cartCollections.findOne(query);
+      if (item && item.orderCount < item?.addToCartProduct?.quantity) {
+        const updateDoc = {
+          $inc: {
+            orderCount: 1,
+          },
+        };
+        const result = await cartCollections.findOneAndUpdate(query, updateDoc);
+        res.send(result);
+      }
     });
 
     // Decrement Order------------------------->
     app.put("/decrementOrder/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
-      const updateDoc = {
-        $inc: {
-          orderCount: -1,
-        },
-      };
-      const result = await cartCollections.findOneAndUpdate(query, updateDoc)
-      res.send(result)
+      const item = await cartCollections.findOne(query);
+      if (item && item.orderCount > 1) {
+        const updateDoc = {
+          $inc: {
+            orderCount: -1,
+          },
+        };
+        const result = await cartCollections.findOneAndUpdate(query, updateDoc);
+        res.send(result);
+      }
     });
 
     await client.db("admin").command({ ping: 1 });
