@@ -86,13 +86,22 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const item = await cartCollections.findOne(query);
+      const price = item?.addToCartProduct?.price?.latestPrice;
+      console.log(price * (item.orderCount + 1));
+      const totalLatestPrice = price * (item.orderCount + 1);
+      console.log(price, item.orderCount + 1);
+
       if (item && item.orderCount < item?.addToCartProduct?.quantity) {
         const updateDoc = {
           $inc: {
             orderCount: 1,
           },
+          $set: {
+            totalLatestPrice,
+          },
         };
         const result = await cartCollections.findOneAndUpdate(query, updateDoc);
+
         res.send(result);
       }
     });
