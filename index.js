@@ -141,8 +141,8 @@ async function run() {
         currency: "EUR",
         tran_id: tranID,
         success_url: "http://localhost:3000/success-payment",
-        fail_url: "http://yoursite.com/fail.php",
-        cancel_url: "http://yoursite.com/cancel.php",
+        fail_url: "http://localhost:3000/fail-payment",
+        cancel_url: "http://localhost:3000/cancle-payment",
         cus_name: paymentInfo?.name,
         cus_email: paymentInfo?.email,
         cus_add1: "Dhaka",
@@ -210,7 +210,20 @@ async function run() {
         },
       };
       const result = await paymentCollections.updateOne(query, updateDoc);
-      res.send(result);
+      if (result) {
+        res.redirect("http://localhost:5173/success-payment");
+      }
+      // res.send(result);
+    });
+
+    // Fail payment------------------------>
+    app.post("/fail-payment", async (req, res) => {
+      res.redirect("http://localhost:5173/fail-payment");
+    });
+
+    // Cancle payment------------------------>
+    app.post("/cancle-payment", async (req, res) => {
+      res.redirect("http://localhost:5173/cancle-payment");
     });
 
     await client.db("admin").command({ ping: 1 });
