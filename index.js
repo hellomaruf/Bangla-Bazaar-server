@@ -132,7 +132,7 @@ async function run() {
 
     app.post("/create-payment", async (req, res) => {
       const paymentInfo = req.body;
-      console.log(paymentInfo);
+      console.log("paymentinfo------------------------->", paymentInfo);
       const tranID = new ObjectId().toString();
       const initiateData = {
         store_id: "bangl66c99f326f374",
@@ -186,8 +186,21 @@ async function run() {
         ammount: paymentInfo?.ammount,
         status: "pending",
         paymentID: tranID,
+        productName: paymentInfo?.productName,
       };
       const paymentResponse = await paymentCollections.insertOne(paymentData);
+
+      // added trans id in cartCollection
+      const filter = {
+        userEmail: paymentInfo?.email,
+      };
+      const updateDoc = {
+        $set: {
+          tran_id: tranID,
+        },
+      };
+      await cartCollections.updateMany(filter, updateDoc);
+
       if (paymentResponse) {
         res.send({
           paymentUrl: response.data.GatewayPageURL,
@@ -197,7 +210,7 @@ async function run() {
 
     app.post("/success-payment", async (req, res) => {
       const successData = req.body;
-      console.log("Success data", successData);
+      console.log("Success data--------------------->", successData);
       if (successData?.status == !"VALID") {
         throw new Error("Unauthorized Payment");
       }
@@ -207,13 +220,19 @@ async function run() {
       const updateDoc = {
         $set: {
           status: "success",
+          paymentMethod: successData?.card_type,
+          tranDate: successData?.tran_date,
         },
       };
       const result = await paymentCollections.updateOne(query, updateDoc);
       if (result) {
         res.redirect("http://localhost:5173/success-payment");
+        const tranID = successData?.tran_id;
+        const query = {
+          tran_id: tranID,
+        };
+        await cartCollections.deleteMany(query);
       }
-      // res.send(result);
     });
 
     // Fail payment------------------------>
