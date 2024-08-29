@@ -41,11 +41,20 @@ async function run() {
     const usersCollections = client.db("BanglaBazarDB").collection("users");
 
     // Added users by post req------------------------------>
-    app.post('/user', async (req, res) => {
-      const userInfo = req.body
-      const result = await usersCollections.insertOne(userInfo)
-      res.send(result)
-    })
+    app.post("/users", async (req, res) => {
+      const userInfo = req.body;
+      const result = await usersCollections.insertOne(userInfo);
+      res.send(result);
+    });
+
+    app.get("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = {
+        email,
+      };
+      const result = await usersCollections.findOne(query);
+      res.send(result);
+    });
 
     // find product by category name----------------------------------->
     app.get("/prodects/:name", async (req, res) => {
