@@ -38,6 +38,14 @@ async function run() {
     const paymentCollections = client
       .db("BanglaBazarDB")
       .collection("payments");
+    const usersCollections = client.db("BanglaBazarDB").collection("users");
+
+    // Added users by post req------------------------------>
+    app.post('/user', async (req, res) => {
+      const userInfo = req.body
+      const result = await usersCollections.insertOne(userInfo)
+      res.send(result)
+    })
 
     // find product by category name----------------------------------->
     app.get("/prodects/:name", async (req, res) => {
