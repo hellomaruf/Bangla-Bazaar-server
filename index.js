@@ -262,6 +262,24 @@ async function run() {
       res.redirect("http://localhost:5173/cancle-payment");
     });
 
+    // update user profile -------------------------->
+    app.patch("/update-profile", async (req, res) => {
+      const { email, name, photo, phoneNum, dateOfBirth, gender } = req.body;
+      const filter = { email: email };
+      const updateDoc = {
+        $set: {
+          name: name,
+          phoneNum: phoneNum,
+          dateOfBirth: dateOfBirth,
+          gender: gender,
+          photo: photo,
+        },
+      };
+      const result = await usersCollections.updateOne(filter, updateDoc);
+      res.send(result);
+
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
