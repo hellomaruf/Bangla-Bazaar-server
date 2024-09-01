@@ -277,8 +277,21 @@ async function run() {
       };
       const result = await usersCollections.updateOne(filter, updateDoc);
       res.send(result);
-
     });
+
+    // Get orders------------------------------->
+    app.get('/orders/:email', async (req, res) => {
+      const email = req.params.email
+      const query1 = {email : email}
+      const query2 = {status : 'success'}
+      const multiQuery = {
+        $and:[query1, query2]
+      }
+      const result = await paymentCollections.find(multiQuery).toArray()
+      res.send(result)
+      
+      
+    })
 
     await client.db("admin").command({ ping: 1 });
     console.log(
