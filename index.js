@@ -204,6 +204,7 @@ async function run() {
         status: "pending",
         paymentID: tranID,
         productName: paymentInfo?.productName,
+        productImg: paymentInfo?.productImg
       };
       const paymentResponse = await paymentCollections.insertOne(paymentData);
 
