@@ -195,7 +195,7 @@ async function run() {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       });
-      console.log(response);
+
       const paymentData = {
         authorName: paymentInfo?.name,
         phoneNumber: paymentInfo?.phoneNumber,
@@ -204,7 +204,7 @@ async function run() {
         status: "pending",
         paymentID: tranID,
         productName: paymentInfo?.productName,
-        productImg: paymentInfo?.productImg
+        productImg: paymentInfo?.productImg,
       };
       const paymentResponse = await paymentCollections.insertOne(paymentData);
 
@@ -281,18 +281,25 @@ async function run() {
     });
 
     // Get orders------------------------------->
-    app.get('/orders/:email', async (req, res) => {
-      const email = req.params.email
-      const query1 = {email : email}
-      const query2 = {status : 'success'}
+    app.get("/orders/:email", async (req, res) => {
+      const email = req.params.email;
+      const query1 = { email: email };
+      const query2 = { status: "success" };
       const multiQuery = {
-        $and:[query1, query2]
-      }
-      const result = await paymentCollections.find(multiQuery).toArray()
-      res.send(result)
-      
-      
-    })
+        $and: [query1, query2],
+      };
+      const result = await paymentCollections.find(multiQuery).toArray();
+      res.send(result);
+    });
+
+    // Delete cart--------------------------->
+    app.delete("/delete-cart/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartCollections.deleteOne(query);
+      res.send(result);
+      console.log(id);
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
